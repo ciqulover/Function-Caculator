@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MarkDown 解析器</title>
+  <link rel="stylesheet" href="./dist/index.css">
+</head>
+<body>
+<h1>算式计算器</h1>
+<div class="calculate">
+  <label for="input">
+    <input type="text" id="input">
+  </label>
+  <button id="doCalculate">计算</button>
+</div>
+<div class="adder">
+  <h3 id="reqAddConst">自定义常量</h3>
+  <h3 id="reqAddFunc">自定义函数</h3>
+</div>
+<div class="addConst">
+  <label for="constName">常量名：
+    <input type="text" id="constName">
+  </label>
+  <label for="constValue">常数值：
+    <input type="text" id="constValue">
+  </label>
+  <button id="addConst">添加</button>
+</div>
+<div class="addFunc">
+  <label for="funcName">函数名：
+    <input type="text" id="funcName">
+  </label>
+  <label for="funcArgs">参数：
+    <input type="text" id="funcArgs">
+  </label>
+  <label for="funcExp">表达式：
+    <input type="text" id="funcExp">
+  </label>
+  <button id="addFunc">添加</button>
+</div>
+<div id="result" class="result"></div>
+<div class="intro">
+  <p>* 只要输入没有歧义，就可以计算</p>
+  <p>* 注意：求余运算优先级高于乘除</p>
+  <p>* 可省略参数前的乘号=> <i>f(x,y) = 2x+y</i></p>
+  <p>* 注意：括号前的乘号不可省略,否则会当作函数</p>
+  <p>* 单个参数的函数可以省略括号=> <i>sin30 == sin(30)</i></p>
+  <p>* 函数(包含自定义函数)可任意形式嵌套=> <i>avg(1,3,avg(0,4))</i></p>
+  <p>* 例如组合函数=> 函数名: <i>C</i> 参数: <i>n,m</i> 表达式: <i>n!/m!/(n-m)!</i></p>
+  <p>* 更多说明和源码地址：<a href="https://github.com/ycwalker/Function-Caculator">Link</a></p>
+</div>
+<script src="dist/main.js"></script>
+</body>
+</html>
