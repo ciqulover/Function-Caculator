@@ -26,6 +26,8 @@ export const constants = {
 }
 
 const fac = num => num == 1 ? num : num * fac(num - 1)
+
+// 内置函数
 export const preDefFunc = {
   abs, exp, log, pow, sqrt, max, min, sin, cos, tan, asin, acos, atan, fac,
   cot: num => 1 / cos(num),
@@ -35,7 +37,6 @@ export const preDefFunc = {
   redToAngle: red => red / constants.PI * 180,
   avg: (...numbers) => numbers.reduce((pre, cur) => pre + cur) / numbers.length,
 }
-const angleToRed = preDefFunc.angleToRed
 
 // 自定义函数
 export const userDefFunc = {}
@@ -162,7 +163,7 @@ function calLevel(level, str) {
     // 括号有两种可能的含义，分别是函数调用和优先级改变，区别对待
     if (symbol == bracket) {
       // 参数中有函数或者其他运算
-      if (/[-+*/()!]/.test(argString)) argString = reduceExp(argString)
+      if (/[-+*/()!^]/.test(argString)) argString = reduceExp(argString)
       if (/Error:/.test(argString)) return argString
       if (argString === '') return `Error: 函数 <i>${fnExp}</i> 参数不能为空`
       const argStringArray = argString.split(',')
@@ -180,11 +181,7 @@ function calLevel(level, str) {
       // 匹配到了函数，如sin(x)在这里匹配
       if (fnName) {
         let fn = preDefFunc[fnName]
-        if (typeof fn == 'function') {
-          const triFunc = [sin, cos, tan, asin, acos, atan]
-          if (triFunc.indexOf(fn) > -1) args = args.map(angleToRed)
-          result = fn.apply(null, args)
-        }
+        if (typeof fn == 'function') result = fn.apply(null, args)
         else if (fn = userDefFunc[fnName]) {
           const exp = preProcess(fn.exp)
           const fnArgs = preProcess(fn.args).split(',')
@@ -208,10 +205,10 @@ function calLevel(level, str) {
     // 处理没有括号，只有一个参数的函数。如果有括号，在第一运算级中已计算
     else if (symbol == power) result = pow(num1, num2)
     else if (symbol == absolute) result = abs(num1)
-    else if (symbol == sine) result = sin(angleToRed(num1))
-    else if (symbol == cosine) result = cos(angleToRed(num1))
-    else if (symbol == cotangent) result = preDefFunc.cot(angleToRed(num1))
-    else if (symbol == tangent) result = tan(angleToRed(num1))
+    else if (symbol == sine) result = sin(num1)
+    else if (symbol == cosine) result = cos(num1)
+    else if (symbol == cotangent) result = preDefFunc.cot(num1)
+    else if (symbol == tangent) result = tan(num1)
     else if (symbol == logarithm) result = preDefFunc.lg(num1)
     else if (symbol == napLogarithm) result = log(num1)
     else if (symbol == multiply) result = num1 * num2

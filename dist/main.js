@@ -57,6 +57,8 @@ var constants = exports.constants = {
 var fac = function fac(num) {
   return num == 1 ? num : num * fac(num - 1);
 };
+
+// 内置函数
 var preDefFunc = exports.preDefFunc = {
   abs: abs, exp: exp, log: log, pow: pow, sqrt: sqrt, max: max, min: min, sin: sin, cos: cos, tan: tan, asin: asin, acos: acos, atan: atan, fac: fac,
   cot: function cot(num) {
@@ -82,7 +84,6 @@ var preDefFunc = exports.preDefFunc = {
     }) / numbers.length;
   }
 };
-var angleToRed = preDefFunc.angleToRed;
 
 // 自定义函数
 var userDefFunc = exports.userDefFunc = {};
@@ -184,7 +185,7 @@ function calLevel(level, str) {
     // 括号有两种可能的含义，分别是函数调用和优先级改变，区别对待
     if (symbol == bracket) {
       // 参数中有函数或者其他运算
-      if (/[-+*/()!]/.test(argString)) argString = reduceExp(argString);
+      if (/[-+*/()!^]/.test(argString)) argString = reduceExp(argString);
       if (/Error:/.test(argString)) return {
           v: argString
         };
@@ -210,11 +211,7 @@ function calLevel(level, str) {
       // 匹配到了函数，如sin(x)在这里匹配
       if (fnName) {
         var fn = preDefFunc[fnName];
-        if (typeof fn == 'function') {
-          var triFunc = [sin, cos, tan, asin, acos, atan];
-          if (triFunc.indexOf(fn) > -1) args = args.map(angleToRed);
-          result = fn.apply(null, args);
-        } else if (fn = userDefFunc[fnName]) {
+        if (typeof fn == 'function') result = fn.apply(null, args);else if (fn = userDefFunc[fnName]) {
           var _exp = preProcess(fn.exp);
           var fnArgs = preProcess(fn.args).split(',');
           var mapping = {};
@@ -244,7 +241,7 @@ function calLevel(level, str) {
         result = fac(num1);
       }
       // 处理没有括号，只有一个参数的函数。如果有括号，在第一运算级中已计算
-      else if (symbol == power) result = pow(num1, num2);else if (symbol == absolute) result = abs(num1);else if (symbol == sine) result = sin(angleToRed(num1));else if (symbol == cosine) result = cos(angleToRed(num1));else if (symbol == cotangent) result = preDefFunc.cot(angleToRed(num1));else if (symbol == tangent) result = tan(angleToRed(num1));else if (symbol == logarithm) result = preDefFunc.lg(num1);else if (symbol == napLogarithm) result = log(num1);else if (symbol == multiply) result = num1 * num2;else if (symbol == divide) result = num1 / num2;else if (symbol == mod) result = num1 % num2;else if (symbol == plus) result = num1 + num2;else if (symbol == minus) result = num1 - num2;
+      else if (symbol == power) result = pow(num1, num2);else if (symbol == absolute) result = abs(num1);else if (symbol == sine) result = sin(num1);else if (symbol == cosine) result = cos(num1);else if (symbol == cotangent) result = preDefFunc.cot(num1);else if (symbol == tangent) result = tan(num1);else if (symbol == logarithm) result = preDefFunc.lg(num1);else if (symbol == napLogarithm) result = log(num1);else if (symbol == multiply) result = num1 * num2;else if (symbol == divide) result = num1 / num2;else if (symbol == mod) result = num1 % num2;else if (symbol == plus) result = num1 + num2;else if (symbol == minus) result = num1 - num2;
 
     // 核心中的核心，匹配到的字符串被其计算的结果替换
     str = str.replace(matches[0], function (match, idx) {
