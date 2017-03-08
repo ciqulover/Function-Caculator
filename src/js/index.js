@@ -1,8 +1,17 @@
-import calculate, {userDefFunc, preDefFunc, constants} from './calculator'
+// 负责添加页面的交互和事件监听
+
+import regs from './regs'
+import calculate from './core'
+import constants from './constants'
+import preDefFunc from './functions'
+
+const userDefFunc = {}
+
+// 调用`calculate()`时的第二个参数 `data`
+const data = {regs, preDefFunc, userDefFunc, constants}
 
 const $ = document.getElementById.bind(document)
 
-const doCalculate = $('doCalculate')
 const input = $('input')
 const resultEl = $('result')
 const funcName = $('funcName')
@@ -14,8 +23,8 @@ const constValue = $('constValue')
 const addConstPanel = document.querySelector('.addConst')
 const addFuncPanel = document.querySelector('.addFunc')
 
-
-export const result = {}
+// 劫持一下result.msg，如果赋的值中有 'Error' 则添加class启用动画钩子
+const result = {}
 function defineReactive(node, obj, val) {
   Object.defineProperty(obj, 'msg', {
     get: () => val,
@@ -32,13 +41,12 @@ function defineReactive(node, obj, val) {
 
 defineReactive(resultEl, result, '')
 
-doCalculate.addEventListener('click', function () {
+$('doCalculate').addEventListener('click', function () {
   const text = input.value.trim()
   if (text === '') return result.msg = 'Error: 输入不能为空'
-  const numStr = calculate(text)
-  if (/Error:/.test(numStr)) return result.msg = numStr
-  const num = Number(numStr)
-  if (num !== num) return result.msg = `Error: 遇到错误，看看结果是不是你想要的: ${numStr}`
+  const num = calculate(text, data)
+  if (/Error:/.test(num)) return result.msg = num
+  if (typeof num == 'string') result.msg = `Error: 遇到错误，看看结果是不是你想要的: ${num}`
   result.msg = num.toString()
 })
 

@@ -28,4 +28,4 @@ fac, lg, ln, avg, angleToRed, redToAngle
 * 括号前的乘号不可省略, 否则会当作函数错误解析
 
 ### TODO
-* [ ] 添加测试 
+* [x] 添加测试 
