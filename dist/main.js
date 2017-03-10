@@ -47,6 +47,9 @@ function calculate(text, data) {
   } catch (e) {
     return 'Error: ' + e.message + ', 请检查输入的表达式';
   }
+  // 最后计算的表达式可能还会有'--'，为保证一定计算完毕，再次计算一次
+  text = preProcess(text);
+  text = reduceExp(text, { regs: regs, preDefFunc: preDefFunc, userDefFunc: userDefFunc });
   var num = Number(text);
   // 如果不是NaN，返回错误提示
   return num === num ? num : text;
@@ -87,9 +90,10 @@ function reduceConst(text, constants) {
 
   text = keys.reduce(function (pre, cur) {
     // 踏马哒 'π' 左边居然不算是'\b'，所以特殊处理
-    if (cur === 'π') pre = pre.replace(/π/g, Math.PI);
+    // if (cur === 'π') return pre.replace(new RegExp('(?:\b|^)' + constRegRight, 'g'), Math.PI)
     var constReg = new RegExp(constRegLeft + cur + constRegRight, 'g');
     var val = constants[cur];
+    if (cur === 'π') constReg = new RegExp('(\\d|^|[-+*\\/^%(])π' + constRegRight, 'g');
     pre = pre.replace(constReg, function (match, cap) {
       // 如果左边是数字，则添加一个乘号，如2x+y
       if (cap) cap = /\d/.test(cap) ? cap + '*' : cap;
@@ -193,6 +197,7 @@ function calLevel(level, str, data) {
         result = preDefFunc.fac(num1);
       }
       // 处理没有括号，只有一个参数的函数。如果有括号，在第一运算级中已计算
+      // 这里的power，并不是函数power，而是'^'，所以不能省略，同'mod'
       else if (regName == 'power') result = preDefFunc.pow(num1, num2);else if (regName == 'absolute') result = preDefFunc.abs(num1);else if (regName == 'sine') result = preDefFunc.sin(num1);else if (regName == 'cosine') result = preDefFunc.cos(num1);else if (regName == 'cotangent') result = preDefFunc.cot(num1);else if (regName == 'tangent') result = preDefFunc.tan(num1);else if (regName == 'logarithm') result = preDefFunc.lg(num1);else if (regName == 'napLogarithm') result = preDefFunc.log(num1);else if (regName == 'multiply') result = num1 * num2;else if (regName == 'divide') result = num1 / num2;else if (regName == 'mod') result = num1 % num2;else if (regName == 'plus') result = num1 + num2;else if (regName == 'minus') result = num1 - num2;
 
     // 核心中的核心，匹配到的字符串被其计算的结果替换
@@ -480,7 +485,7 @@ function exec(text) {
   text = text.slice(left + length, right);
   var match = leftMatchString + text + ')';
   var result = [match, text];
-  result.fn = leftMatchString.slice(0, length - 1);
+  result.fn = leftMatchString.slice(0, -1);
   result.index = left;
   return result;
 }

@@ -28,6 +28,7 @@ describe('fundamental', () => {
   })
   it('power', () => {
     calculate('2^3').should.equal(8)
+    calculate('1-(-2)^3').should.equal(9)
   })
   it('mod', () => {
     calculate('2%3').should.equal(2)

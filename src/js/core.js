@@ -18,6 +18,9 @@ export default function calculate(text, data) {
   } catch (e) {
     return 'Error: ' + e.message + ', 请检查输入的表达式'
   }
+  // 最后计算的表达式可能还会有'--'，为保证一定计算完毕，再次计算一次
+  text = preProcess(text)
+  text = reduceExp(text, {regs, preDefFunc, userDefFunc})
   const num = Number(text)
   // 如果不是NaN，返回错误提示
   return num === num ? num : text
@@ -55,9 +58,10 @@ function reduceConst(text, constants) {
 
   text = keys.reduce(function (pre, cur) {
     // 踏马哒 'π' 左边居然不算是'\b'，所以特殊处理
-    if (cur === 'π') pre = pre.replace(/π/g, Math.PI)
-    const constReg = new RegExp(constRegLeft + cur + constRegRight, 'g')
+    // if (cur === 'π') return pre.replace(new RegExp('(?:\b|^)' + constRegRight, 'g'), Math.PI)
+    let constReg = new RegExp(constRegLeft + cur + constRegRight, 'g')
     const val = constants[cur]
+    if (cur === 'π') constReg = new RegExp('(\\d|^|[-+*\\/^%(])π' + constRegRight, 'g')
     pre = pre.replace(constReg, (match, cap) => {
       // 如果左边是数字，则添加一个乘号，如2x+y
       if (cap) cap = /\d/.test(cap) ? cap + '*' : cap
@@ -141,6 +145,7 @@ function calLevel(level, str, data) {
       result = preDefFunc.fac(num1)
     }
     // 处理没有括号，只有一个参数的函数。如果有括号，在第一运算级中已计算
+    // 这里的power，并不是函数power，而是'^'，所以不能省略，同'mod'
     else if (regName == 'power') result = preDefFunc.pow(num1, num2)
     else if (regName == 'absolute') result = preDefFunc.abs(num1)
     else if (regName == 'sine') result = preDefFunc.sin(num1)

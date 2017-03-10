@@ -63,7 +63,7 @@ function exec(text) {
   text = text.slice(left + length, right)
   const match = leftMatchString + text + ')'
   const result = [match, text]
-  result.fn = leftMatchString.slice(0, length - 1)
+  result.fn = leftMatchString.slice(0, -1)
   result.index = left
   return result
 }
